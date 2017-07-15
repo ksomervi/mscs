@@ -24,6 +24,9 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     void createUi();
     void createMenubar();

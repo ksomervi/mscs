@@ -27,7 +27,19 @@ MainWindow::~MainWindow()
 {
 
 }
-
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  QString portName = portCb->currentText();
+  QString status;
+  if (serial->isOpen()) {
+      this->textArea->append(tr("Closing port: %1").arg(portName));
+      serial->close();
+      status = tr("Disconnected...");
+      portCb->setEnabled(true);
+      sendButton->setEnabled(false);
+  }
+  event->accept();
+}
 
 void MainWindow::createUi()
 {
@@ -200,7 +212,10 @@ void MainWindow::openSerialPort()
             portCb->setEnabled(false);
             sendButton->setEnabled(true);
         } else {
-            status = tr("Error: %1").arg(serial->errorString());
+            this->textArea->append(tr("Error: %1").arg(serial->errorString()));
+            if (QSerialPortInfo(portName).isBusy()) {
+              status = tr("%1 is busy").arg(portName);
+            }
         }
     }
     else {
