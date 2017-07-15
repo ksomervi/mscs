@@ -12,6 +12,9 @@ class QPushButton;
 class QTextEdit;
 class QTextLine;
 
+#define APPLICATION_TITLE "MSCS"
+#define MSCS_VERSION     "0.1"
+
 
 class MainWindow : public QFrame
 {
@@ -23,10 +26,14 @@ public:
 
 private:
     void createUi();
+    void createMenubar();
     void createPortGroupBox();
     void getAvailablePorts();
 
     QMenuBar *mb;
+    QMenu *fileMenu;
+    QMenu *helpMenu;
+
     QByteArray cmdByte;
 
     QTextEdit *textArea;
@@ -48,6 +55,8 @@ private slots:
     void sendCommand();
     void writeData(const QByteArray &data);
     void readData();
+    void about();
+    void save();
 
 };
 

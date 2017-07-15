@@ -31,6 +31,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::createUi()
 {
+    //Add menubar
+    createMenubar();
+
+    // Setup widgets to control the serial port interface.
     createPortGroupBox();
 
     textArea = new QTextEdit(this);
@@ -52,8 +56,12 @@ void MainWindow::createUi()
     mainLayout->setSpacing(3);
     mainLayout->setMargin(5);
 
-    ///mainLayout->add
-    mainLayout->addWidget(portGroupBox);
+    mainLayout->addWidget(mb);
+    QHBoxLayout *wrapLayout = new QHBoxLayout;
+    wrapLayout->addStretch(1);
+    wrapLayout->addWidget(portGroupBox);
+    //mainLayout->addWidget(portGroupBox);
+    mainLayout->addLayout(wrapLayout);
 
     mainLayout->addWidget(textArea);
     mainLayout->addLayout(commandLayout);
@@ -62,8 +70,7 @@ void MainWindow::createUi()
 
     connect(connectButton,SIGNAL(clicked()), this, SLOT(openSerialPort()));
 
-    //adjustSize();
-    setWindowTitle("MSCS");
+    setWindowTitle(APPLICATION_TITLE " v" MSCS_VERSION);
 }
 
 void MainWindow::createPortGroupBox()
@@ -79,11 +86,41 @@ void MainWindow::createPortGroupBox()
     layout->setSpacing(5);
 
     layout->addWidget(portCb);
-    layout->addStretch(1);
+    //layout->addStretch(1);
     layout->addWidget(connectButton);
     portGroupBox->setLayout(layout);
     portGroupBox->adjustSize();
 
+}
+
+void MainWindow::createMenubar() {
+  mb = new QMenuBar(this);
+  QMenu *fileMenu = new QMenu("&File");
+  QAction *saveAct = fileMenu->addAction(tr("&Save"), this, &MainWindow::save);
+  saveAct->setShortcuts(QKeySequence::Save);
+  saveAct->setStatusTip(tr("Save activity log to file"));
+  //connect(saveAct, &QAction::triggered, this, &MainWindow::save);
+
+  QAction *quitAction = fileMenu->addAction(tr("&Quit"), this, &MainWindow::close);
+  quitAction->setShortcuts(QKeySequence::Quit);
+  quitAction->setStatusTip(tr("Exit the application"));
+
+  mb->addMenu(fileMenu);
+
+  QMenu *helpMenu = new QMenu("&Help");
+
+  QAction *aboutAct = helpMenu->addAction(tr("&About..."), this, &MainWindow::about);
+  aboutAct->setStatusTip(tr("Show the MSCS credits"));
+
+  mb->addMenu(helpMenu);
+}
+
+void MainWindow::about()
+{
+  QMessageBox::about(this, tr("About MSCS"),
+                     tr("MSCS is a simple interface simulator for controlling my project.\n"
+                        "Kevin Somervill (kevin@somervill.org)\n"
+                        "copyright 2017"));
 }
 
 void MainWindow::getAvailablePorts() {
@@ -99,6 +136,10 @@ void MainWindow::getAvailablePorts() {
 void MainWindow::loadCommands() {
     this->cmdCb->addItem("Read Temp");
     this->cmdCb->addItem("Toggle LED");
+
+}
+
+void MainWindow::save() {
 
 }
 
@@ -146,6 +187,8 @@ void MainWindow::openSerialPort()
     }*/
 
         serial->setPortName(portName);
+        // For now, we'll hardcode the port configuration parameters.
+        // TODO: Add a dialog to the some of the parameters
         serial->setBaudRate(QSerialPort::Baud9600);
         serial->setDataBits(QSerialPort::Data8);
         serial->setParity(QSerialPort::NoParity);
